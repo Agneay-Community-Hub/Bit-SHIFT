@@ -1,0 +1,187 @@
+# BITSHIFT level file.
+# Legend:  # wall   . floor   _ pit   + pad   P player   X exit   a-z block cells
+# blocks:  <letter> <H|V> <value> <bits>     (H grows right from its left end, V grows down from its top end)
+# ops:     which shift instructions the player has in this level (shl shr rol ror)
+# par:     fewest actions, computed by tools/solver.py
+
+=== HELLO_WORLD
+hint: Face a block and press Q to shift it left (<<). Its value doubles, and so does its width. Fill the pad to unlock the exit.
+ops: shl
+par: 12
+map:
+###########
+#.........#
+#.P..a....#
+#.........#
+#....++..X#
+#.........#
+###########
+blocks:
+a H 1 3
+
+=== HALF_PRECISION
+hint: E shifts right (>>). Halve the block to squeeze it through the gap, then grow it back.
+ops: shl shr
+par: 18
+map:
+#############
+#.P.........#
+#..aaaa.....#
+#...........#
+#####..######
+#...........#
+#....++++..X#
+#############
+blocks:
+a H 4 3
+
+=== BRIDGE_BUILDER
+hint: A block that fits a pit exactly falls in and becomes floor.
+ops: shl shr
+par: 19
+map:
+##########
+#........#
+#.P..a...#
+#........#
+###____###
+###....###
+###..X.###
+##########
+blocks:
+a H 1 3
+
+=== NULL_POINTER
+hint: This register is only 1 bit wide. What happens when you run out of bits?
+ops: shl shr
+par: 6
+map:
+#########
+#.......#
+#.P.....#
+#.......#
+####a####
+#...X...#
+#########
+blocks:
+a H 1 1
+
+=== TRUNCATE
+hint: Only << this time. A 3-bit register can't hold 10. The top bit falls off the end.
+ops: shl
+par: 10
+map:
+###########
+#.........#
+#.P.aaaaa.#
+#.........#
+#####__####
+#####..####
+#####X.####
+###########
+blocks:
+a H 5 3
+
+=== VERTICAL_SYNC
+hint: Vertical registers grow downward from their top end.
+ops: shl shr
+par: 15
+map:
+##########
+#....._..#
+#.P.a._..#
+#....._.X#
+#....._..#
+##########
+blocks:
+a V 1 3
+
+=== ROTATE_LEFT
+hint: R rotates left (ROL). Bits that fall off the top wrap around to the bottom. Nothing is lost.
+ops: shl rol
+par: 22
+map:
+############
+#..........#
+#.P.aaaa...#
+#..........#
+#####.######
+#..........#
+#..........#
+###____#####
+###.X..#####
+############
+blocks:
+a H 4 3
+
+=== WORD_ALIGN
+hint: Two registers, two pads. Mind which way they grow.
+ops: shl shr
+par: 32
+map:
+###########
+#P...#....#
+#..a.#.+..#
+#....#.+..#
+#..b......#
+#.++++..X.#
+###########
+blocks:
+a V 1 3
+b H 1 3
+
+=== GARBAGE_COLLECTOR
+hint: Free the junk, but keep what you need.
+ops: shl
+par: 35
+map:
+#########
+#P......#
+#..a....#
+##b#c#d##
+#.......#
+###__####
+###.X####
+#########
+blocks:
+a H 1 2
+b V 1 1
+c V 1 2
+d V 1 3
+
+=== CARRY_FLAG
+hint: Rotation keeps every bit. Count them: 3, 5 and 6 all have two.
+ops: shl rol
+par: 26
+map:
+###########
+#P........#
+#..aaa....#
+#.........#
+#.+++++...#
+#..bbb....#
+####___####
+####.X.####
+###########
+blocks:
+a H 3 3
+b H 3 3
+
+=== SHIFT_HAPPENS
+hint: Everything you've learned. Good luck, programmer.
+ops: shl shr rol
+par: 50
+map:
+###########
+#P.....b..#
+#..aa..b..#
+#######.###
+#.........#
+#.++++.ccc#
+######_####
+######X####
+###########
+blocks:
+a H 2 3
+b V 2 2
+c H 3 3
