@@ -13,7 +13,7 @@ namespace BitShift
         static readonly Color BgCol = Hex("070a10"), FloorA = Hex("111925"), FloorB = Hex("142030"),
             WallCol = Hex("22324a"), WallEdge = Hex("3d5878"), PitCol = Hex("000000"), PitRim = Hex("ff4d6d"),
             PadCol = Hex("39ffb0"), ExitLocked = Hex("ff4d6d"), ExitOpen = Hex("39ff88"), PlayerCol = Hex("eafff4"),
-            Accent = Hex("39ffb0"), ErrCol = Hex("ff4d6d"), WarnCol = Hex("ffd166"), Dim = Hex("6c7a90");
+            Accent = Hex("39ffb0"), ErrCol = Hex("ff4d6d"), WarnCol = Hex("ffd166"), Dim = Hex("9fb2cc");
 
         static Color BitsColor(int bits) => bits switch
         {
@@ -223,7 +223,7 @@ namespace BitShift
         }
 
         // ============================================================ level setup
-        void LoadLevel(int i)
+        public void LoadLevel(int i)
         {
             levelIndex = i;
             L = levels[i];
@@ -373,7 +373,7 @@ namespace BitShift
         }
 
         // ============================================================ actions
-        void DoAction(int a)
+        public void DoAction(int a)
         {
             if (mode != Mode.Play || doneTimer >= 0f) return;
             if (a >= 4 && !L.ops.Contains((Op)(a - 4))) return;
@@ -496,6 +496,8 @@ namespace BitShift
             SyncViews(false);
             exitWasOpen = Sim.ExitOpen(L, st);
         }
+
+        public void ShowTitle() => SetMode(Mode.Title);
 
         void SetMode(Mode m)
         {
@@ -819,6 +821,15 @@ namespace BitShift
 
         Texture2D Solid(Color c) => Tex(2, 2, (x, y) => c, FilterMode.Point);
 
+        // 8x8 texture with a 2px frame, used 9-sliced by GUIStyle.border
+        Texture2D Framed(Color fill, Color frame) =>
+            Tex(8, 8, (x, y) => (x < 2 || y < 2 || x > 5 || y > 5) ? frame : fill, FilterMode.Point);
+
+        GUIStyle sBar;
+
+        // "[Q] SHL" style label: key in the accent colour, the rest in white
+        string KeyLabel(string key, string text) => $"<color={Html(Accent)}>[{key}]</color> {text}";
+
         void InitStyles()
         {
             if (sText != null) return;
@@ -826,7 +837,7 @@ namespace BitShift
             accentTex = Solid(Accent);
             shadeTex = Solid(new Color(0, 0, 0, 0.55f));
             sText = new GUIStyle { font = font, fontSize = 18, richText = true, wordWrap = false };
-            sText.normal.textColor = Hex("d8f5e8");
+            sText.normal.textColor = Hex("f2fff8");
             sSmall = new GUIStyle(sText) { fontSize = 14 };
             sSmall.normal.textColor = Dim;
             sCenter = new GUIStyle(sText) { alignment = TextAnchor.MiddleCenter, wordWrap = true };
@@ -834,12 +845,16 @@ namespace BitShift
             sTitle = new GUIStyle(sCenter) { fontSize = 96, fontStyle = FontStyle.Bold, wordWrap = false };
             sFloat = new GUIStyle(sCenter) { fontStyle = FontStyle.Bold, wordWrap = false };
             sPanel = new GUIStyle { padding = new RectOffset(12, 12, 8, 8) };
-            sPanel.normal.background = Solid(new Color(0.03f, 0.05f, 0.08f, 0.82f));
-            sBtn = new GUIStyle(sCenter) { fontSize = 16, fontStyle = FontStyle.Bold, wordWrap = false };
-            sBtn.normal.background = Solid(new Color(0.08f, 0.13f, 0.19f, 0.95f));
-            sBtn.hover.background = Solid(new Color(0.13f, 0.25f, 0.3f, 1f));
-            sBtn.active.background = Solid(new Color(0.2f, 0.5f, 0.4f, 1f));
-            sBtn.normal.textColor = Hex("d8f5e8");
+            sPanel.normal.background = Solid(new Color(0.03f, 0.05f, 0.08f, 0.94f));
+            sBar = new GUIStyle { border = new RectOffset(3, 3, 3, 3) };
+            sBar.normal.background = Framed(new Color(0.035f, 0.055f, 0.085f, 0.97f), new Color(0.22f, 0.75f, 0.55f, 0.9f));
+            // buttons: opaque fill + bright 2px frame so they read against any background
+            sBtn = new GUIStyle(sCenter) { fontSize = 16, fontStyle = FontStyle.Bold, wordWrap = false, richText = true };
+            sBtn.border = new RectOffset(3, 3, 3, 3);
+            sBtn.normal.background = Framed(Hex("172a3f"), Hex("5f8fb8"));
+            sBtn.hover.background = Framed(Hex("1f4a52"), Accent);
+            sBtn.active.background = Framed(Hex("2a8a6a"), Color.white);
+            sBtn.normal.textColor = Color.white;
             sBtn.hover.textColor = Color.white;
             sBtn.active.textColor = Color.white;
         }
@@ -868,6 +883,10 @@ namespace BitShift
             gk = Screen.height / 720f;
             vh = 720f;
             vw = Screen.width / gk;
+            // CRT finish first, so it sits under the HUD instead of dimming it
+            GUI.matrix = Matrix4x4.identity;
+            GUI.DrawTextureWithTexCoords(new Rect(0, 0, Screen.width, Screen.height), scanTex, new Rect(0, 0, 1, Screen.height / 3f));
+            GUI.DrawTexture(new Rect(0, 0, Screen.width, Screen.height), vignetteTex, ScaleMode.StretchToFill);
             GUI.matrix = Matrix4x4.Scale(new Vector3(gk, gk, 1));
 
             switch (mode)
@@ -878,11 +897,6 @@ namespace BitShift
                 case Mode.Done: DrawPlay(); DrawDone(); break;
                 case Mode.End: DrawEnd(); break;
             }
-
-            // CRT finish
-            GUI.matrix = Matrix4x4.identity;
-            GUI.DrawTextureWithTexCoords(new Rect(0, 0, Screen.width, Screen.height), scanTex, new Rect(0, 0, 1, Screen.height / 3f));
-            GUI.DrawTexture(new Rect(0, 0, Screen.width, Screen.height), vignetteTex, ScaleMode.StretchToFill);
         }
 
         void DrawTitle()
@@ -996,7 +1010,7 @@ namespace BitShift
             }
 
             // top bar
-            GUI.Box(new Rect(0, 0, vw, 52), GUIContent.none, sPanel);
+            GUI.Box(new Rect(-4, -4, vw + 8, 56), GUIContent.none, sBar);
             Label(new Rect(20, 14, 600, 30), $"<color={Html(Dim)}>{levelIndex + 1:00}/{levels.Count:00}</color>  <b>{L.title}</b>", sText);
             var right = new GUIStyle(sText) { alignment = TextAnchor.UpperRight };
             string actCol = st.actions <= L.par ? Html(Accent) : Html(WarnCol);
@@ -1040,23 +1054,24 @@ namespace BitShift
             {
                 var hs = new GUIStyle(sCenter) { fontSize = 17 };
                 float hw = Mathf.Min(920f, vw - 32f);
-                var hr = new Rect(vw / 2 - hw / 2, vh - 112, hw, 52);
-                GUI.Box(hr, GUIContent.none, sPanel);
+                var hr = new Rect(vw / 2 - hw / 2, vh - 118, hw, 54);
+                GUI.Box(hr, GUIContent.none, sBar);
                 Label(new Rect(hr.x + 10, hr.y + 4, hr.width - 20, hr.height - 8), $"<color={Html(Accent)}>//</color> {L.hint}", hs);
             }
 
-            // bottom buttons
-            float bx = 16, by = vh - 50;
+            // bottom bar + buttons
+            GUI.Box(new Rect(-4, vh - 58, vw + 8, 62), GUIContent.none, sBar);
+            float bx = 14, by = vh - 50;
             foreach (var op in L.ops)
             {
-                if (Button(new Rect(bx, by, 150, 36), $"[{KeyFor(op)}] {Sim.OpName(op)} {Sim.OpSymbol(op)}")) DoAction(4 + (int)op);
+                if (Button(new Rect(bx, by, 150, 40), KeyLabel(KeyFor(op), $"{Sim.OpName(op)} {Sim.OpSymbol(op)}"))) DoAction(4 + (int)op);
                 bx += 158;
             }
-            float rx = vw - 16;
-            rx -= 110; if (Button(new Rect(rx, by, 110, 36), "[ESC] MENU")) ToSelect();
-            rx -= 118; if (Button(new Rect(rx, by, 110, 36), "[R] RESET")) Restart();
-            rx -= 118; if (Button(new Rect(rx, by, 110, 36), "[Z] UNDO")) Undo();
-            rx -= 118; if (Button(new Rect(rx, by, 110, 36), "[H] HINT")) showHint = !showHint;
+            float rx = vw - 14;
+            rx -= 132; if (Button(new Rect(rx, by, 132, 40), KeyLabel("ESC", "MENU"))) ToSelect();
+            rx -= 140; if (Button(new Rect(rx, by, 132, 40), KeyLabel("R", "RESET"))) Restart();
+            rx -= 140; if (Button(new Rect(rx, by, 132, 40), KeyLabel("Z", "UNDO"))) Undo();
+            rx -= 140; if (Button(new Rect(rx, by, 132, 40), KeyLabel("H", showHint ? "HIDE HINT" : "HINT"))) showHint = !showHint;
         }
 
         void DrawDone()

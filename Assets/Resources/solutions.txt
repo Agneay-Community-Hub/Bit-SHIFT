@@ -1,0 +1,11 @@
+HELLO_WORLD: U R R R D D shl R R D R R
+HALF_PRECISION: D R R U R D shr D D D shl R R R R D R R
+BRIDGE_BUILDER: U R R R R D L L U L D shl shl D D D D R R
+NULL_POINTER: R R D shl D D
+TRUNCATE: R R U R D shl D D D D
+VERTICAL_SYNC: D R R U L U R shl shl D D R R R R
+ROTATE_LEFT: R R U R D rol D D D R D L L U L D shl shl D D D R
+WORD_ALIGN: R R D R D D L R U U L D L D shl shl R R R R D R U U R U R L shl D D D
+GARBAGE_COLLECTOR: D R R R U D shl shl D D R R U U L U L D D shl U R R D D L R U U L L D D D D
+CARRY_FLAG: R R D D L D D R L U U R R R R D L D D L U shl rol D D R
+SHIFT_HAPPENS: D R R R shr R U R R D D D shr R D L L L L L U L D shl shl R R R R R U U U L L D R U R D D D R D L U L D D D
