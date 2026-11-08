@@ -3,6 +3,25 @@
 > A programming puzzler about running out of bits.
 > Made for **GitHub Game Off 2026**. Theme: **SHIFT**.
 
+## Trailer
+
+[![BITSHIFT trailer: click to watch](docs/thumbnail.png)](https://github.com/Agneay-Community-Hub/Bit-SHIFT/releases/download/v1.0.0/BITSHIFT-trailer.mp4)
+
+▶ **[Watch the trailer](https://github.com/Agneay-Community-Hub/Bit-SHIFT/releases/download/v1.0.0/BITSHIFT-trailer.mp4)** (66 s, 1080p)
+
+![Shifting 0b101 left in a 3-bit register: the top bit overflows and the block shrinks to 0b010](docs/preview.gif)
+
+## Download
+
+| Platform | Download |
+|----------|----------|
+| Windows (64-bit) | [BITSHIFT-Windows-x64.zip](https://github.com/Agneay-Community-Hub/Bit-SHIFT/releases/latest/download/BITSHIFT-Windows-x64.zip): unzip and run `BITSHIFT.exe` |
+| Web build | [BITSHIFT-WebGL.zip](https://github.com/Agneay-Community-Hub/Bit-SHIFT/releases/latest/download/BITSHIFT-WebGL.zip): upload to itch.io or serve locally |
+
+All builds are on the [Releases page](https://github.com/Agneay-Community-Hub/Bit-SHIFT/releases).
+
+## How to play
+
 Every block in the world is a **register**. Its value is its size: a block holding `3` is three tiles long.
 Face a block and shift it:
 
