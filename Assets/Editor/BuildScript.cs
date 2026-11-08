@@ -46,9 +46,10 @@ namespace BitShift.EditorTools
             PlayerSettings.SplashScreen.showUnityLogo = false;
             PlayerSettings.defaultWebScreenWidth = 1280;
             PlayerSettings.defaultWebScreenHeight = 720;
-            // itch.io does not send Content-Encoding headers for Unity files, so ship gzip with the JS fallback.
-            PlayerSettings.WebGL.compressionFormat = WebGLCompressionFormat.Gzip;
-            PlayerSettings.WebGL.decompressionFallback = true;
+            // Ship uncompressed: gzip + JS fallback can hang on hosts like itch.io's CDN, and those hosts
+            // compress files in transit anyway, so the download size barely changes.
+            PlayerSettings.WebGL.compressionFormat = WebGLCompressionFormat.Disabled;
+            PlayerSettings.WebGL.decompressionFallback = false;
             PlayerSettings.WebGL.template = "PROJECT:BitShift";
         }
 

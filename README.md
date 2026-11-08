@@ -89,8 +89,8 @@ Output goes to `Builds/WebGL` and `Builds/Windows`. To test the web build locall
 
 Zip the *contents* of `Builds/WebGL` (so `index.html` is at the root of the zip), upload it as an
 HTML game and tick *This file will be played in the browser*. A 1280×720 viewport works well; the
-page also scales to any size. The build uses gzip with a decompression fallback, so it needs no
-special server headers.
+page also scales to any size. The build is uncompressed (the zip and the host's transfer
+compression keep it small), so it needs no special server headers.
 
 ### Adding a level
 

@@ -28,6 +28,12 @@
       document.querySelector("#bar").style.display = "none";
     }
 
+    // Any script error (a missing Build/ file, a blocked request) shows on the page instead of a frozen bar.
+    window.addEventListener("error", function (e) {
+      if (document.querySelector("#loading"))
+        showError("SEGFAULT while loading:\n" + String(e.message || (e.target && e.target.src) || e).replace(/</g, "&lt;"));
+    }, true);
+
     // Browsers block a page opened from disk (file://) from fetching its own Build/ files,
     // so Unity would sit at 0% forever. Explain that instead of hanging.
     if (location.protocol === "file:") {
@@ -35,6 +41,8 @@
         "Browsers won't load WebGL games from file://.\nServe this folder over HTTP instead, e.g.\n\n" +
         "<code>python -m http.server 8000</code>\n\nthen open <code>http://localhost:8000</code>, " +
         "or play it on itch.io.");
+    } else if (typeof createUnityInstance !== "function") {
+      showError("SEGFAULT: Build/{{{ LOADER_FILENAME }}} did not load.\nMake sure index.html and the Build folder are at the top level of the upload.");
     } else {
     var stalled = setTimeout(function () {
       showError("Still loading after 30 s.\nCheck your connection, or try another browser (Chrome, Firefox, Edge).");
