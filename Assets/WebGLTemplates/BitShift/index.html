@@ -11,15 +11,34 @@
                justify-content: center; color: #39ffb0; font: 16px/1.4 Consolas, "Courier New", monospace; }
     #bar { width: 260px; height: 6px; background: #132030; margin-top: 14px; }
     #fill { width: 0; height: 100%; background: #39ffb0; transition: width .1s; }
+    #msg { max-width: 560px; margin-top: 22px; padding: 0 16px; color: #ffd166; text-align: center; white-space: pre-line; }
+    #msg code { color: #fff; background: #132030; padding: 2px 6px; }
   </style>
 </head>
 <body>
   <canvas id="unity-canvas" tabindex="-1"></canvas>
-  <div id="loading"><div>BITSHIFT // loading registers...</div><div id="bar"><div id="fill"></div></div></div>
+  <div id="loading"><div>BITSHIFT // loading registers...</div><div id="bar"><div id="fill"></div></div><div id="msg"></div></div>
   <script src="Build/{{{ LOADER_FILENAME }}}"></script>
   <script>
     var canvas = document.querySelector("#unity-canvas");
     canvas.addEventListener("pointerdown", function () { canvas.focus(); });
+
+    function showError(html) {
+      document.querySelector("#msg").innerHTML = html;
+      document.querySelector("#bar").style.display = "none";
+    }
+
+    // Browsers block a page opened from disk (file://) from fetching its own Build/ files,
+    // so Unity would sit at 0% forever. Explain that instead of hanging.
+    if (location.protocol === "file:") {
+      showError("SEGFAULT: this page was opened directly from disk.\n\n" +
+        "Browsers won't load WebGL games from file://.\nServe this folder over HTTP instead, e.g.\n\n" +
+        "<code>python -m http.server 8000</code>\n\nthen open <code>http://localhost:8000</code>, " +
+        "or play it on itch.io.");
+    } else {
+    var stalled = setTimeout(function () {
+      showError("Still loading after 30 s.\nCheck your connection, or try another browser (Chrome, Firefox, Edge).");
+    }, 30000);
     createUnityInstance(canvas, {
       dataUrl: "Build/{{{ DATA_FILENAME }}}",
       frameworkUrl: "Build/{{{ FRAMEWORK_FILENAME }}}",
@@ -31,9 +50,14 @@
     }, function (p) {
       document.querySelector("#fill").style.width = (100 * p) + "%";
     }).then(function () {
+      clearTimeout(stalled);
       document.querySelector("#loading").remove();
       canvas.focus();
-    }).catch(function (m) { alert(m); });
+    }).catch(function (m) {
+      clearTimeout(stalled);
+      showError("SEGFAULT while loading:\n" + String(m).replace(/</g, "&lt;"));
+    });
+    }
   </script>
 </body>
 </html>
